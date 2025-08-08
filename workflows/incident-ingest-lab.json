@@ -1,0 +1,138 @@
+{
+  "name": "incident-ingest-lab",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "incident-lab",
+        "responseMode": "responseNode"
+      },
+      "id": "edcf7822-6d50-461c-a174-85cfc721ada0",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ],
+      "webhookId": "d6f83c02-f5b7-4104-b6c3-d0ee6abd4cf3"
+    },
+    {
+      "parameters": {
+        "functionCode": "const { service, severity, message, runbookUrl } = items[0].json;\nconst sev = (severity || \"info\").toLowerCase();\nconst sevOrder = { critical: 4, high: 3, medium: 2, low: 1, info: 0 };\nconst priority = sevOrder[sev] >= 3 ? \"P1\" : (sevOrder[sev] === 2 ? \"P2\" : \"P3\");\nreturn [{ json: { title: `[${priority}] ${service || \"unknown\"} - ${message || \"no message\"}`, severity: sev, priority, service: service || \"unknown\", runbookUrl: runbookUrl || null, createdAt: new Date().toISOString() } }];"
+      },
+      "id": "e504e1e5-28e9-4afb-9c6f-5f6378b5a0e5",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://httpbin.org/post",
+        "jsonParameters": true,
+        "options": {},
+        "method": "POST",
+        "sendBody": true,
+        "bodyParametersJson": "{\"channel\": \"#devops\", \"text\": \"={{$json[\\\"title\\\"]}}\"}"
+      },
+      "id": "1b6ec84e-a135-4623-90ff-de6e1503532a",
+      "name": "Mock Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        780,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://httpbin.org/post",
+        "jsonParameters": true,
+        "options": {},
+        "method": "POST",
+        "sendBody": true,
+        "bodyParametersJson": "{\"projectKey\": \"OPS\", \"summary\": \"={{$json[\\\"title\\\"]}}\", \"labels\": [\"n8n\", \"incident\"], \"custom\": {\"severity\": \"={{$json[\\\"severity\\\"]}}\", \"service\": \"={{$json[\\\"service\\\"]}}\", \"runbookUrl\": \"={{$json[\\\"runbookUrl\\\"]}}\"}}"
+      },
+      "id": "27d1d62e-69b6-499f-994f-9357041694a3",
+      "name": "Mock Jira",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "responseBody": "={\"status\":\"queued\",\"title\":$json.title,\"severity\":$json.severity,\"service\":$json.service}",
+        "responseCode": 200
+      },
+      "id": "ba8c61bc-ca44-4334-a455-8526b147600e",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Mock Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mock Jira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Slack": {
+      "main": [
+        [
+          {
+            "node": "Mock Jira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Jira": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "staticData": null
+}

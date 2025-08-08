@@ -1,0 +1,75 @@
+{
+  "name": "hello-webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hello-lab",
+        "responseMode": "responseNode"
+      },
+      "id": "373b30a3-7613-4944-9fca-58e6dca2d184",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ],
+      "webhookId": "db152efd-4257-4ae2-97a3-737526c2d81f"
+    },
+    {
+      "parameters": {
+        "functionCode": "const name = (items[0].json.name || \"Dev\");\nreturn [{ json: { message: `Olá, ${name}! Workflow no ar.`, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "aedb9d03-3284-4f12-ade8-c9632c12b55b",
+      "name": "Code",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "responseBody": "={{$json}}",
+        "responseCode": 200
+      },
+      "id": "c905ab07-73b6-4572-9f44-622504c74781",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        780,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "staticData": null
+}

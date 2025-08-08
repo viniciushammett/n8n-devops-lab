@@ -1,0 +1,113 @@
+{
+  "name": "slo-digest-lab",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": [
+                9
+              ],
+              "minute": [
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "id": "c29b525d-2e7d-4c84-8d22-84b444bde328",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://httpbin.org/anything",
+        "options": {},
+        "method": "GET"
+      },
+      "id": "4164d21b-6fc8-486f-b3dd-0ece0306b20f",
+      "name": "Fetch Metrics (mock)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const target = 0.999, actual = 0.997;\nconst errorBudget = (1 - target);\nconst consumed = (1 - actual);\nconst remaining = Math.max(errorBudget - consumed, 0);\nreturn [{ json: { target, actual, errorBudget, consumed, remaining } }];"
+      },
+      "id": "7d4e1be0-26b0-4cf3-a8f2-bba5ca605b18",
+      "name": "Calc SLO",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://httpbin.org/post",
+        "jsonParameters": true,
+        "options": {},
+        "method": "POST",
+        "sendBody": true,
+        "bodyParametersJson": "{\"channel\": \"#sre-digest\", \"text\": \"=SLO: alvo={{$json[\\\"target\\\"]}}, atual={{$json[\\\"actual\\\"]}}, restante={{$json[\\\"remaining\\\"]}}\"}"
+      },
+      "id": "8e718621-5307-4874-b8ac-65fd18ee5fce",
+      "name": "Mock Slack Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Metrics (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Metrics (mock)": {
+      "main": [
+        [
+          {
+            "node": "Calc SLO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc SLO": {
+      "main": [
+        [
+          {
+            "node": "Mock Slack Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "staticData": null
+}

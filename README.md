@@ -6,7 +6,7 @@ Automação e orquestração com **n8n** para um contexto **DevOps/SRE** — pro
 
 ## 🧱 Arquitetura do lab
 
-```
+```mermaid
 flowchart LR
   A[Cliente/CLI/cURL] -->|HTTP POST| B[Webhook Trigger]
   B --> C[Function/Code (JS)]
@@ -18,7 +18,18 @@ flowchart LR
   end
   n8n <--> Redis[(Redis Queue)]
   n8n <--> Postgres[(Postgres)]
-```
+
+:contentReference[oaicite:2]{index=2}
+
+2) **.gitignore** (evitar acidente com segredos ou volumes)
+```gitignore
+.env
+env/*.env
+.env/*.env
+/home/node/.n8n
+n8n_data/
+.DS_Store
+
 
 ## 🔧 Pré-requisitos
 - Docker e Docker Compose
@@ -193,6 +204,29 @@ Content-Type: application/json
 - Adicionar **pipeline S3 ⇄ SFTP com PGP + comprovante no Teams**.
 - Enriquecimento de alerta com **logs** (CloudWatch/Azure Monitor) antes do ticket.
 - Publicar um **diagrama** e screenshots no README (sem segredos).
+
+## Executando com arquivos de ambiente dedicados (`--env-file`)
+
+Se preferir organizar seus ambientes em arquivos separados (ex.: `env/n8n.local.env`):
+
+```bash
+mkdir -p env
+cp .env.example env/n8n.local.env
+docker compose --env-file env/n8n.local.env up -d
+```
+
+> Dica: mantenha diferentes arquivos como `env/n8n.dev.env`, `env/n8n.prod.env` e escolha com `--env-file`.
+
+## Roadmap (próximos passos)
+
+- [ ] Adicionar pipeline **S3 ⇄ SFTP com PGP** (comprovante no Teams)
+- [ ] Trocar httpbin por integrações reais (**Slack/Jira**) usando *Credentials*
+- [ ] Adicionar prints/GIF curto do `hello-webhook` no README
+- [ ] Workflow de **enriquecimento de alerta** com logs (CloudWatch/Azure Monitor)
+
+## Licença
+
+Este projeto usa a licença **MIT**. Veja [LICENSE](./LICENSE).
 
 ---
 
