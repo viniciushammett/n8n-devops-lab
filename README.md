@@ -60,13 +60,13 @@ Objetivo: receber um JSON, transformá-lo e responder algo útil.
    ```bash
    curl -X POST http://localhost:5678/webhook-test/hello-lab \
      -H "Content-Type: application/json" \
-     -d '{"name":"Vinicius"}'
+     -d '{"name":"Seu Nome"}'
    ```
 7. Quando estiver ok, **Activate** o workflow e use a URL “Production”:
    ```bash
    curl -X POST http://localhost:5678/webhook/hello-lab \
      -H "Content-Type: application/json" \
-     -d '{"name":"Vinicius"}'
+     -d '{"name":"Seu Nome"}'
    ```
 
 ## 🛠️ Workflow 1 — Ingestão de Incidente (DevOps)
