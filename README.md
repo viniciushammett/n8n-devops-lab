@@ -6,7 +6,7 @@ Automação e orquestração com **n8n** para um contexto **DevOps/SRE** — pro
 
 ## 🧱 Arquitetura do lab
 
-```mermaid
+```
 flowchart LR
   A[Cliente/CLI/cURL] -->|HTTP POST| B[Webhook Trigger]
   B --> C[Function/Code (JS)]
