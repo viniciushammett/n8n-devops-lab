@@ -1,0 +1,11 @@
+### Hello webhook
+POST http://localhost:5678/webhook/hello-lab
+Content-Type: application/json
+
+{"name":"Vinicius"}
+
+### Incident ingest
+POST http://localhost:5678/webhook/incident-lab
+Content-Type: application/json
+
+{"service":"checkout","severity":"high","message":"Taxa de erro > 5%","runbookUrl":"https://runbooks/checkout"}
